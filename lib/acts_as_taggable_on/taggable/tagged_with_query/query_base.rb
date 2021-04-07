@@ -40,7 +40,9 @@ module ActsAsTaggableOn::Taggable::TaggedWithQuery
 
     def tags_match_type
       matches_attribute = tag_arel_table[:name]
-      matches_attribute = matches_attribute.lower unless ActsAsTaggableOn.strict_case_match
+      unless ActsAsTaggableOn.strict_case_match || ActsAsTaggableOn::Utils.using_postgresql?
+        matches_attribute = matches_attribute.lower
+      end
 
       if options[:wild].present?
         matches_attribute.matches_any(tag_list.map{|tag| "%#{escaped_tag(tag)}%"}, "!", ActsAsTaggableOn.strict_case_match)
